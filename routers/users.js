@@ -6,8 +6,8 @@ import sendResponse from "../helpers/sendResponce.js";
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-    const { name,email,pasword } = req.body;
-    let newUser = new User({ name,email,pasword });
+    const { user } = req.body;
+    let newUser = new User(user);
     newUser = await newUser.save();
     console.log("body=>",newUser);
     

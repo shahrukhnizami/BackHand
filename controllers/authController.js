@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import connectDB from "../config/database.js";
 
 const secretKey = "your_secret_key";
 
@@ -37,6 +38,8 @@ export const register = async (req, res) => {
 // Login User
 export const login = async (req, res) => {
     const { email, password } = req.body;
+    console.log("Received email:", email);
+    console.log("Received password:", password);
 
     if (!email || !password) {
         return res.status(400).json({ message: "Email and password are required." });
@@ -45,11 +48,13 @@ export const login = async (req, res) => {
     try {
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: "Invalid email or password." });
+            console.log("User not found");
+            return res.status(400).json({ message: "Invalid email or password." , data: [email , password] , "db" : connectDB()});
         }
 
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
+            console.log("Password mismatch");
             return res.status(400).json({ message: "Invalid email or password." });
         }
 
@@ -57,15 +62,18 @@ export const login = async (req, res) => {
             expiresIn: "1h",
         });
 
+        console.log("Login successful");
         res.status(200).json({
             message: "Login successful.",
             token,
             user: { id: user._id, name: user.name, email: user.email, role: user.role },
         });
     } catch (error) {
+        console.error("Login error:", error);
         res.status(500).json({ message: "Error logging in.", error });
     }
 };
+
 
 // Forget Password
 export const forgetPassword = async (req, res) => {

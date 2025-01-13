@@ -2,6 +2,8 @@ import express from 'express'
 
 
 
+
+
 import connectDB from './config/database.js';
 
 import userRoute from "./routes/authRoutes.js";
@@ -29,6 +31,8 @@ app.use(express.json());
 
 // Routes
 app.use("/api/auth", userRoute);
+
+
 app.get("/" , (req, res)=>{
   res.send("sever running")
 })

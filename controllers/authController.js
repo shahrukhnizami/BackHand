@@ -66,7 +66,7 @@ export const login = async (req, res) => {
         res.status(200).json({
             message: "Login successful.",
             token,
-            user: { id: user._id, name: user.name, email: user.email, role: user.role },
+            user: { id: user._id, name: user.name, email: user.email, role: user.role ,image: user.image},
         });
     } catch (error) {
         console.error("Login error:", error);
@@ -103,3 +103,14 @@ export const forgetPassword = async (req, res) => {
 export const logout = (req, res) => {
     res.status(200).json({ message: "Logged out successfully." });
 };
+
+// Get All Users
+export const getAlluser = async (req, res) => {
+    try {
+      const users = await User.find({}, { password: 0 }); // Exclude password field for security
+      res.status(200).json({ message: "Users retrieved successfully.", users });
+    } catch (error) {
+      res.status(500).json({ message: "Error retrieving users.", error });
+    }
+  };
+  

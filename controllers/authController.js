@@ -1,13 +1,21 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../models/user.js";
 import connectDB from "../config/database.js";
+import cloudinary from 'cloudinary';
+import multer from 'multer';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
 const secretKey = "your_secret_key";
+
+
+// Cloudinary configuration
+
 
 // Register User
 export const register = async (req, res) => {
     const { name, email, password, role } = req.body;
+    
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: "All fields are required." });
@@ -25,7 +33,7 @@ export const register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role,
+            role
         });
 
         await newUser.save();
@@ -113,4 +121,30 @@ export const getAlluser = async (req, res) => {
       res.status(500).json({ message: "Error retrieving users.", error });
     }
   };
+  
+  // Delete User
+  export const deleteUser = async (req, res) => {
+    const { userId } = req.params;
+  
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required." });
+    }
+  
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found." });
+      }
+  
+      if (req.user.role !== 'admin') {
+        return res.status(403).json({ message: "You do not have permission to delete users." });
+      }
+  
+      await User.findByIdAndDelete(userId);
+      res.status(200).json({ message: "User deleted successfully." });
+    } catch (error) {
+      res.status(500).json({ message: "Error deleting user.", error });
+    }
+  };
+  
   

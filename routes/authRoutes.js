@@ -1,4 +1,4 @@
-import { register, login, forgetPassword, logout, getAlluser } from "../controllers/authController.js";
+import { register, login, forgetPassword, logout, getAlluser , deleteUser,updateUser  } from "../controllers/authController.js";
 import express from 'express'
 
 
@@ -39,6 +39,8 @@ router.post("/register", register);
 router.post("/login", login);
 router.post("/forget-password", forgetPassword);
 router.post("/logout", logout);
+router.delete('/users/:id', isAuthenticated, isAdmin, deleteUser);
+router.put('/users/:id', isAuthenticated, isAdmin, updateUser);
 
 // Route to get all users
 router.get("/users" , isAuthenticated , isAdmin, getAlluser);

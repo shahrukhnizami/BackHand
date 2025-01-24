@@ -122,29 +122,51 @@ export const getAlluser = async (req, res) => {
     }
   };
   
-  // Delete User
+// Delete User
+
   export const deleteUser = async (req, res) => {
-    const { userId } = req.params;
-  
-    if (!userId) {
-      return res.status(400).json({ message: "User ID is required." });
-    }
+    const { id } = req.params;
   
     try {
-      const user = await User.findById(userId);
+      const user = await User.findById(id);
       if (!user) {
-        return res.status(404).json({ message: "User not found." });
+        return res.status(404).json({ message: 'User not found.' });
       }
   
-      if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: "You do not have permission to delete users." });
-      }
+      await user.deleteOne();
   
-      await User.findByIdAndDelete(userId);
-      res.status(200).json({ message: "User deleted successfully." });
+      res.status(200).json({ message: 'User deleted successfully.' });
     } catch (error) {
-      res.status(500).json({ message: "Error deleting user.", error });
+      res.status(500).json({ message: 'Error deleting user.', error });
     }
   };
   
+  
+  // Update User
+export const updateUser = async (req, res) => {
+    const { id } = req.params;
+    const { name, email, role, password } = req.body;
+  
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+      }
+  
+      user.name = name || user.name;
+      user.email = email || user.email;
+      user.role = role || user.role;
+  
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+      }
+  
+      await user.save();
+  
+      res.status(200).json({ message: 'User updated successfully.', user });
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating user.', error });
+    }
+  };
   
